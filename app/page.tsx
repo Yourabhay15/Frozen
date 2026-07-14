@@ -10,7 +10,7 @@ import LoadingSkeleton from "@/components/loading-skeleton"
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: { category?: string; search?: string; price?: string; new?: string; sale?: string; instock?: string }
+  searchParams: Promise<{ category?: string; search?: string; price?: string; new?: string; sale?: string; instock?: string }>
 }) {
   // Fetch products from the API
   const res = await fetch("http://localhost:3000/api/products", { cache: "no-store" });
@@ -25,9 +25,7 @@ export default async function HomePage({
     // Handle the case where responseText is not valid JSON (e.g., HTML error page)
   }
 
-  const params = typeof searchParams === 'object' && searchParams !== null && typeof (searchParams as any).then === 'function'
-    ? await searchParams
-    : searchParams;
+  const params = await searchParams;
 
   const searchQuery = params.search || ""
   const filters = {

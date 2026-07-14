@@ -1,4 +1,4 @@
-import { testConnection, initializeDatabase, seedDatabase } from "../lib/neon-database"
+import { testConnection } from "../lib/database"
 
 async function startApplication() {
   console.log("🧊 FROZEN THREAD - Starting Application")
@@ -6,22 +6,15 @@ async function startApplication() {
   console.log("")
 
   try {
-    // Check environment variables
     console.log("📋 Checking environment variables...")
 
     if (!process.env.DATABASE_URL) {
       console.error("❌ DATABASE_URL is missing!")
       console.log("")
       console.log("🔧 Quick fix:")
-      console.log("1. Add your Neon database URL to .env.local")
-      console.log("2. Run 'npm run setup' for complete setup")
+      console.log("1. Add your Supabase PostgreSQL connection string to .env.local")
+      console.log("2. Run 'npx prisma db push' to synchronize schema")
       console.log("")
-      process.exit(1)
-    }
-
-    if (!process.env.NEXTAUTH_SECRET) {
-      console.error("❌ NEXTAUTH_SECRET is missing!")
-      console.log("Add NEXTAUTH_SECRET to your .env.local file")
       process.exit(1)
     }
 
@@ -38,7 +31,7 @@ async function startApplication() {
       console.log("🔧 Troubleshooting:")
       console.log("• Run 'npm run db:test' to diagnose")
       console.log("• Check your DATABASE_URL format")
-      console.log("• Verify Neon project is active")
+      console.log("• Verify Supabase database is active")
       console.log("")
       process.exit(1)
     }
@@ -49,33 +42,12 @@ async function startApplication() {
     // Check if tables exist
     console.log("🗄️  Checking database tables...")
     try {
-      const { sql } = await import("../lib/neon-database")
-      const tables = await sql`
-        SELECT table_name 
-        FROM information_schema.tables 
-        WHERE table_schema = 'public' AND table_name = 'users'
-      `
-
-      if (tables.length === 0) {
-        console.log("⚠️  Database tables not found. Initializing...")
-
-        const initialized = await initializeDatabase()
-        if (!initialized) {
-          console.error("❌ Failed to initialize database")
-          process.exit(1)
-        }
-
-        console.log("✅ Database tables created")
-        console.log("")
-
-        console.log("🌱 Adding sample data...")
-        await seedDatabase()
-        console.log("✅ Sample data added")
-      } else {
-        console.log("✅ Database tables exist")
-      }
+      const { prisma } = await import("../lib/prisma")
+      await prisma.user.findFirst()
+      console.log("✅ Database tables exist")
     } catch (error) {
-      console.log("⚠️  Could not check tables, but connection works")
+      console.log("⚠️  Database tables not found. Initializing...")
+      console.log("👉 Please run 'npx prisma db push' to create tables, and 'npm run db:seed' to seed.")
     }
 
     console.log("")
@@ -86,21 +58,10 @@ async function startApplication() {
     console.log("   Admin Dashboard: http://localhost:3000/admin")
     console.log("   API:            http://localhost:3000/api")
     console.log("")
-    console.log("👤 Demo accounts:")
-    console.log("   Admin:    admin@frozenthread.com    / admin123")
-    console.log("   User:     user@frozenthread.com     / user123")
-    console.log("   Customer: customer@frozenthread.com / customer123")
-    console.log("")
     console.log("🚀 Run 'npm run dev' to start the development server")
     console.log("")
   } catch (error) {
     console.error("❌ Startup failed:", error)
-    console.log("")
-    console.log("🆘 Get help:")
-    console.log("• Run 'npm run help' for complete guide")
-    console.log("• Run 'npm run status' to check system")
-    console.log("• Run 'npm run db:test' to test database")
-    console.log("")
     process.exit(1)
   }
 }

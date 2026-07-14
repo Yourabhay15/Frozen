@@ -4,7 +4,7 @@ import ProductDetails from "@/components/product-details"
 import type { Metadata } from "next"
 
 interface ProductPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {

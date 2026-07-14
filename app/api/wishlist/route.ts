@@ -1,15 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getWishlist, addToWishlist } from "@/lib/database"
-import { ObjectId } from "mongodb"
+import { createClient } from "@/utils/supabase/server"
+import { cookies } from "next/headers"
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url)
-  const userId = searchParams.get("userId")
-  if (!userId || !ObjectId.isValid(userId)) {
-    return NextResponse.json({ error: "Invalid userId" }, { status: 400 })
-  }
   try {
-    const wishlist = await getWishlist(userId)
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+    const { data: { user }, error } = await supabase.auth.getUser()
+    if (error || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const wishlist = await getWishlist(user.id)
     return NextResponse.json({ success: true, data: wishlist })
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch wishlist" }, { status: 500 })
@@ -17,12 +20,20 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { userId, productId } = await request.json()
-  if (!userId || !ObjectId.isValid(userId)) {
-    return NextResponse.json({ error: "Invalid userId" }, { status: 400 })
-  }
   try {
-    const wishlistItem = await addToWishlist(userId, productId)
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+    const { data: { user }, error } = await supabase.auth.getUser()
+    if (error || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { productId } = await request.json()
+    if (!productId) {
+      return NextResponse.json({ error: "productId is required" }, { status: 400 })
+    }
+
+    const wishlistItem = await addToWishlist(user.id, productId)
     return NextResponse.json({ success: true, data: wishlistItem })
   } catch (error: unknown) {
     if (error instanceof Error && error.message === "Item already in wishlist") {

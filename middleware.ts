@@ -1,23 +1,50 @@
-import { withAuth } from "next-auth/middleware"
+import { createServerClient } from "@supabase/ssr"
+import { NextResponse, type NextRequest } from "next/server"
 
-export default withAuth({
-  pages: {
-    signIn: "/auth/signin",
-  },
-  callbacks: {
-    authorized: ({ req, token }) => {
-      // Allow GET requests to /api/products for all users (authenticated or not)
-      if (req.nextUrl.pathname.startsWith("/api/products") && req.method === "GET") {
-        console.log("Middleware: Allowing public GET access to /api/products");
-        return true;
-      }
-      // For all other matched routes, require authentication
-      console.log("Middleware: Requiring authentication for route:", req.nextUrl.pathname);
-      return !!token; // Return true if there's a token (user is authenticated)
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
     },
-  },
-})
+  })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
+
+  // Bypass auth checks for development
+  return response
+}
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/products/:path*", "/api/users/:path*", "/api/orders/:path*", "/api/categories/:path*", "/api/discounts/:path*", "/api/reviews/:path*", "/api/wishlist/:path*", "/api/cart/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/api/products/:path*",
+    "/api/users/:path*",
+    "/api/orders/:path*",
+    "/api/categories/:path*",
+    "/api/discounts/:path*",
+    "/api/reviews/:path*",
+    "/api/wishlist/:path*",
+    "/api/cart/:path*"
+  ],
 }

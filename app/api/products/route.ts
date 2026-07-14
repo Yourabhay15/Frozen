@@ -1,21 +1,16 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { getServerSession } from "next-auth" // Import getServerSession
-import { authOptions } from "@/app/api/auth/[...nextauth]/route" // Import authOptions
+import { createClient } from "@/utils/supabase/server"
+import { cookies } from "next/headers"
 
-export async function GET(request: NextRequest) { // Add request parameter
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions) // Get session
-
-    // For GET requests, allow access to all users.
-    // Products displayed on the homepage should be publicly accessible.
     console.log("API: Attempting to fetch active products for public view...");
     const products = await prisma.product.findMany({ where: { status: "active" } });
     console.log("API: Successfully fetched active products, count:", products.length);
     return NextResponse.json(products);
   } catch (error: any) {
     console.error("API: Error fetching products:", error);
-    // Log the full error object for more details
     if (error instanceof Error) {
       console.error("API: Error name:", error.name);
       console.error("API: Error message:", error.message);
@@ -27,11 +22,22 @@ export async function GET(request: NextRequest) { // Add request parameter
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions) // Get session
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+    const { data: { user }, error } = await supabase.auth.getUser()
 
-    // Check if user is authenticated and is an admin
-    if (!(session?.user?.isAdmin || session?.user?.role === "admin")) {
-      console.warn("API: Unauthorized attempt to create product (POST)");
+    if (error || !user) {
+      console.warn("API: Unauthorized attempt to create product (POST) - No session");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Check if user is admin in Prisma database
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id }
+    })
+
+    if (!dbUser?.isAdmin && dbUser?.role !== "admin") {
+      console.warn(`API: Unauthorized attempt to create product (POST) - User ${user.email} is not admin`);
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -51,7 +57,7 @@ export async function POST(request: NextRequest) {
     })
     return NextResponse.json(newProduct, { status: 201 })
   } catch (error) {
-    console.error("API: Error creating product:", error); // Add logging for POST errors
+    console.error("API: Error creating product:", error);
     return NextResponse.json({ error: "Failed to create product" }, { status: 500 })
   }
 }

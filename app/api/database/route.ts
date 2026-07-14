@@ -1,15 +1,25 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { createClient } from "@/utils/supabase/server"
+import { cookies } from "next/headers"
+import { prisma } from "@/lib/prisma"
 import { promises as fs } from "fs"
 import path from "path"
 
-// Database backup and restore functionality
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+    const { data: { user }, error } = await supabase.auth.getUser()
 
-    if (!session?.user?.isAdmin) {
+    if (error || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id }
+    })
+
+    if (!dbUser?.isAdmin && dbUser?.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -29,9 +39,19 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+    const { data: { user }, error } = await supabase.auth.getUser()
 
-    if (!session?.user?.isAdmin) {
+    if (error || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id }
+    })
+
+    if (!dbUser?.isAdmin && dbUser?.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 

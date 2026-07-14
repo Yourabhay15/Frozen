@@ -1,4 +1,4 @@
-import { testConnection } from "../lib/neon-database"
+import { testConnection } from "../lib/database"
 
 async function checkStatus() {
   console.log("🧊 FROZEN THREAD - System Status")

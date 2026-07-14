@@ -399,3 +399,15 @@ export async function getSalesAnalytics() {
     throw error
   }
 }
+
+// Test database connection
+export async function testConnection() {
+  try {
+    await prisma.$queryRaw`SELECT 1`
+    return true
+  } catch (error) {
+    console.error("Database connection test failed:", error)
+    return false
+  }
+}
+

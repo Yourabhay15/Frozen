@@ -1,16 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { removeFromWishlist, isInWishlist } from "@/lib/database"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { createClient } from "@/utils/supabase/server"
+import { cookies } from "next/headers"
 
 export async function DELETE(request: NextRequest, { params }: { params: { productId: string } }) {
   const { productId } = await params;
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+    const { data: { user }, error } = await supabase.auth.getUser()
+    if (error || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    const userId = session.user.id
+    const userId = user.id
 
     const success = await removeFromWishlist(userId, productId)
 
@@ -27,11 +29,13 @@ export async function DELETE(request: NextRequest, { params }: { params: { produ
 export async function GET(request: NextRequest, { params }: { params: { productId: string } }) {
   const { productId } = await params;
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+    const { data: { user }, error } = await supabase.auth.getUser()
+    if (error || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    const userId = session.user.id
+    const userId = user.id
 
     const inWishlist = await isInWishlist(userId, productId)
     return NextResponse.json({ success: true, data: { inWishlist } })

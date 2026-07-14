@@ -1,11 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getProductById, updateProduct, deleteProduct } from "@/lib/data"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { createClient } from "@/utils/supabase/server"
+import { cookies } from "next/headers"
+import { prisma } from "@/lib/prisma"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const product = await getProductById(params.id)
+    const { id } = await params;
+    const product = await getProductById(id)
 
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 })
@@ -19,17 +21,29 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getServerSession(authOptions)
+    const { id } = await params;
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+    const { data: { user }, error } = await supabase.auth.getUser()
 
-    if (!(session?.user?.isAdmin || session?.user?.role === "admin")) {
+    if (error || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Check if user is admin in Prisma database
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id }
+    })
+
+    if (!dbUser?.isAdmin && dbUser?.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const productData = await request.json()
-    console.log("Received product data for update:", productData); // Log incoming data
+    console.log("Received product data for update:", productData);
 
-    const updatedProduct = await updateProduct(params.id, productData)
-    console.log("Result of updateProduct:", updatedProduct); // Log result of update operation
+    const updatedProduct = await updateProduct(id, productData)
+    console.log("Result of updateProduct:", updatedProduct);
 
     if (!updatedProduct) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 })
@@ -37,20 +51,32 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     return NextResponse.json(updatedProduct)
   } catch (error) {
-    console.error("Error updating product:", error); // Log general error
+    console.error("Error updating product:", error);
     return NextResponse.json({ error: "Failed to update product" }, { status: 500 })
   }
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getServerSession(authOptions)
+    const { id } = await params;
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+    const { data: { user }, error } = await supabase.auth.getUser()
 
-    if (!(session?.user?.isAdmin || session?.user?.role === "admin")) {
+    if (error || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const success = await deleteProduct(params.id)
+    // Check if user is admin in Prisma database
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id }
+    })
+
+    if (!dbUser?.isAdmin && dbUser?.role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const success = await deleteProduct(id)
 
     if (!success) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 })
