@@ -31,20 +31,31 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Bypass auth checks for development
+  const { data: { user } } = await supabase.auth.getUser()
+  const path = request.nextUrl.pathname
+
+  const isProtectedPage = path.startsWith("/checkout") || path.startsWith("/orders") || path.startsWith("/admin")
+  const isProtectedApi = path.startsWith("/api/") && 
+    (path.startsWith("/api/cart") || path.startsWith("/api/wishlist") || path.startsWith("/api/orders"))
+
+  if (!user && (isProtectedPage || isProtectedApi)) {
+    if (path.startsWith("/api/")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    const url = new URL("/auth/signin", request.url)
+    url.searchParams.set("redirect", path)
+    return NextResponse.redirect(url)
+  }
+
+  if (user && (path.startsWith("/auth/signin") || path.startsWith("/auth/register"))) {
+    return NextResponse.redirect(new URL("/", request.url))
+  }
+
   return response
 }
 
 export const config = {
   matcher: [
-    "/admin/:path*",
-    "/api/products/:path*",
-    "/api/users/:path*",
-    "/api/orders/:path*",
-    "/api/categories/:path*",
-    "/api/discounts/:path*",
-    "/api/reviews/:path*",
-    "/api/wishlist/:path*",
-    "/api/cart/:path*"
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 }

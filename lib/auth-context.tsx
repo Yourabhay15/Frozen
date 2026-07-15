@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
+import { createClient } from "@/utils/supabase/client"
 
 interface User {
   id: string
@@ -32,39 +33,120 @@ interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const mockUser: User = {
-  id: "mock-admin-id",
-  email: "admin@frozenthread.com",
-  name: "Bypassed Admin",
-  isAdmin: true,
-  role: "admin",
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-}
+const supabase = createClient()
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(mockUser)
-  const [isLoading, setIsLoading] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("frozen-thread-user", JSON.stringify(mockUser))
+    let isMounted = true
+
+    async function initializeAuth() {
+      try {
+        const { data: { user: sbUser } } = await supabase.auth.getUser()
+        if (sbUser && isMounted) {
+          // Fetch database profile
+          const response = await fetch(`/api/auth/profile`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data.success && data.data) {
+              setUser(data.data)
+              localStorage.setItem("frozen-thread-user", JSON.stringify(data.data))
+            } else {
+              setUser(null)
+              localStorage.removeItem("frozen-thread-user")
+            }
+          }
+        } else if (isMounted) {
+          setUser(null)
+          localStorage.removeItem("frozen-thread-user")
+        }
+      } catch (error) {
+        console.error("Auth initialization failed:", error)
+      } finally {
+        if (isMounted) setIsLoading(false)
+      }
+    }
+
+    initializeAuth()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if ((event === "SIGNED_IN" || event === "USER_UPDATED") && session?.user) {
+        setIsLoading(true)
+        try {
+          const response = await fetch(`/api/auth/profile`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data.success && data.data) {
+              setUser(data.data)
+              localStorage.setItem("frozen-thread-user", JSON.stringify(data.data))
+            }
+          }
+        } catch (error) {
+          console.error("Failed to sync auth profile:", error)
+        } finally {
+          setIsLoading(false)
+        }
+      } else if (event === "SIGNED_OUT") {
+        setUser(null)
+        localStorage.removeItem("frozen-thread-user")
+      }
+    })
+
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
     }
   }, [])
 
   const login = async (email: string, password: string): Promise<{ success: boolean; message?: string }> => {
-    return { success: true, message: "Welcome back, Bypassed Admin!" }
+    setIsLoading(true)
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) throw error
+      return { success: true, message: "Welcome back!" }
+    } catch (error: any) {
+      return { success: false, message: error.message || "Failed to log in" }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const register = async (userData: RegisterData): Promise<{ success: boolean; message?: string }> => {
-    return { success: true, message: "Account created successfully!" }
+    setIsLoading(true)
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+        options: {
+          data: {
+            name: userData.name,
+            phone: userData.phone,
+          }
+        }
+      })
+      if (error) throw error
+      return { success: true, message: "Account created successfully! Please check your email or sign in." }
+    } catch (error: any) {
+      return { success: false, message: error.message || "Registration failed" }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const logout = async () => {
-    // Keep auth bypassed
+    setIsLoading(true)
+    try {
+      await supabase.auth.signOut()
+    } catch (error) {
+      console.error("Logout error:", error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const isAuthenticated = true
+  const isAuthenticated = !!user
 
   return (
     <AuthContext.Provider value={{ user, login, logout, register, isLoading, isAuthenticated }}>

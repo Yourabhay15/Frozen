@@ -30,7 +30,7 @@ export async function GET() {
       })
     }
     
-    return NextResponse.json({ success: true, profile })
+    return NextResponse.json({ success: true, data: profile })
   } catch (error) {
     console.error("Profile GET error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
       },
     })
     
-    return NextResponse.json({ success: true, profile })
+    return NextResponse.json({ success: true, data: profile })
   } catch (error) {
     console.error("Profile POST error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
