@@ -102,6 +102,8 @@ export default function WishlistPage() {
           title: "Added to cart! 🛒",
           description: `${product.name} has been added to your cart`,
         })
+        window.dispatchEvent(new Event("cart-updated"))
+        window.dispatchEvent(new Event("open-cart"))
       }
     } catch (error) {
       toast({

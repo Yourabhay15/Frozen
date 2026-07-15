@@ -47,6 +47,26 @@ export default function CartSidebar() {
   }
 
   useEffect(() => {
+    if (user) {
+      fetchCart()
+    }
+
+    const handleCartUpdate = () => {
+      fetchCart()
+    }
+    const handleOpenCart = () => {
+      setIsOpen(true)
+    }
+    window.addEventListener("cart-updated", handleCartUpdate)
+    window.addEventListener("open-cart", handleOpenCart)
+
+    return () => {
+      window.removeEventListener("cart-updated", handleCartUpdate)
+      window.removeEventListener("open-cart", handleOpenCart)
+    }
+  }, [user])
+
+  useEffect(() => {
     if (user && isOpen) {
       fetchCart()
     }

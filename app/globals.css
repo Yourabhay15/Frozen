@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Orbitron:wght@400;700;900&family=Cinzel:wght@700&family=Inter:wght@300;400;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -235,5 +237,98 @@
   }
   100% {
     transform: translateY(-15px);
+  }
+}
+
+/* Original website typography mappings */
+.copperplate-bold {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.1em;
+}
+
+.anton-regular {
+  font-family: 'Anton', sans-serif;
+  letter-spacing: 0.05em;
+}
+
+.stage-wander {
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.15em;
+}
+
+/* Premium Button animations and hover effects */
+.btn-premium {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15);
+}
+
+.btn-premium:active {
+  transform: translateY(1px);
+}
+
+/* Horizontal scrolling helper with hidden scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Lightning Rotating Hexagon Spinner */
+.hexagon-spinner {
+  width: 20px;
+  height: 11.55px;
+  background-color: currentColor;
+  position: relative;
+  display: inline-block;
+  animation: rotate-lightning 0.8s infinite linear;
+}
+
+.hexagon-spinner:before,
+.hexagon-spinner:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+}
+
+.hexagon-spinner:before {
+  top: -5.77px;
+  border-bottom: 5.77px solid currentColor;
+}
+
+.hexagon-spinner:after {
+  bottom: -5.77px;
+  border-top: 5.77px solid currentColor;
+}
+
+@keyframes rotate-lightning {
+  0% {
+    transform: rotate(0deg) scale(1);
+    filter: brightness(1) drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
+  }
+  25% {
+    filter: brightness(1.8) drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+  }
+  50% {
+    transform: rotate(180deg) scale(1.15);
+    filter: brightness(1) drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
+  }
+  75% {
+    filter: brightness(2) drop-shadow(0 0 8px rgba(255, 255, 255, 1));
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    filter: brightness(1) drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
   }
 }

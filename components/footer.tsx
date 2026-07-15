@@ -18,23 +18,23 @@ export default function Footer() {
             <nav aria-label="Shop navigation">
               <ul className="space-y-2 text-gray-400">
                 <li>
-                  <Link href="/?category=hoodies" className="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white rounded">
-                    Hoodies
+                  <Link href="/?category=Cartoon Caus MERCH" className="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white rounded">
+                    Cartoon Caus
                   </Link>
                 </li>
                 <li>
-                  <Link href="/?category=tshirts" className="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white rounded">
-                    T-Shirts
+                  <Link href="/?category=Harry Potter MERCH" className="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white rounded">
+                    Harry Potter
                   </Link>
                 </li>
                 <li>
-                  <Link href="/?category=pants" className="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white rounded">
-                    Pants
+                  <Link href="/?category=Spooky MERCH" className="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white rounded">
+                    Spooky Merch
                   </Link>
                 </li>
                 <li>
-                  <Link href="/?category=accessories" className="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white rounded">
-                    Accessories
+                  <Link href="/?category=Anime MERCH" className="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white rounded">
+                    Anime Merch
                   </Link>
                 </li>
               </ul>

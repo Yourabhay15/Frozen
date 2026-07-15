@@ -63,11 +63,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // Create order
-    const order = await createOrder({
-      ...orderData,
-      paymentStatus: "pending",
-      status: "pending",
+    // Create order with nested orderItems
+    const order = await prisma.order.create({
+      data: {
+        userId: orderData.userId,
+        total: parseFloat(orderData.total),
+        status: "pending",
+        orderItems: {
+          create: orderData.items.map((item: any) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+          }))
+        }
+      },
+      include: {
+        orderItems: true
+      }
     })
 
     // Clear user's cart after successful order

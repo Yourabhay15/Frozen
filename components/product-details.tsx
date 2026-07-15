@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { ShoppingCart, Share2, Truck, Shield, RotateCcw, Star } from "lucide-react"
+import { ShoppingCart, Share2, Truck, Shield, RotateCcw, Star, ArrowLeft } from "lucide-react"
 import { formatPrice } from "@/lib/currency"
 import { useAuth } from "@/lib/auth-context"
 import { useToast } from "@/hooks/use-toast"
 import ProductImageGallery from "./product-image-gallery"
 import WishlistButton from "@/components/wishlist/wishlist-button"
 import ProductReviews from "@/components/reviews/product-reviews"
+import Link from "next/link"
 
 interface ProductDetailsProps {
   product: Product
@@ -64,6 +65,8 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
           title: "Added to cart! 🛒",
           description: `${product.name} has been added to your cart`,
         })
+        window.dispatchEvent(new Event("cart-updated"))
+        window.dispatchEvent(new Event("open-cart"))
       } else {
         throw new Error("Failed to add to cart")
       }
@@ -104,7 +107,17 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Back Button */}
+      <div className="flex justify-start">
+        <Button variant="ghost" asChild className="text-gray-400 hover:text-white hover:bg-white/10 btn-premium transition-all">
+          <Link href="/">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Shop
+          </Link>
+        </Button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-black">
         {/* Product Images with Zoom */}
         <ProductImageGallery product={product} />
@@ -248,14 +261,23 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             <div className="flex space-x-3">
               <Button
                 size="lg"
-                className="w-full bg-white text-black hover:bg-gray-200 font-semibold py-4"
+                className="w-full bg-white text-black hover:bg-gray-200 font-semibold py-4 btn-premium"
                 onClick={addToCart}
                 disabled={product.inventory === 0 || loading}
                 aria-disabled={product.inventory === 0 || loading}
                 aria-label={product.inventory === 0 ? "Out of stock" : loading ? "Adding to cart" : "Add to cart"}
               >
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                {loading ? "ADDING..." : product.inventory === 0 ? "OUT OF STOCK" : "ADD TO CART"}
+                {loading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="hexagon-spinner text-black" />
+                    <span>ADDING...</span>
+                  </div>
+                ) : (
+                  <>
+                    <ShoppingCart className="mr-2 h-5 w-5" />
+                    {product.inventory === 0 ? "OUT OF STOCK" : "ADD TO CART"}
+                  </>
+                )}
               </Button>
               <WishlistButton productId={product.id} showText />
             </div>

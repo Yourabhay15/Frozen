@@ -1,13 +1,17 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 import type { Product } from "@/lib/types"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ShoppingCart, Eye } from "lucide-react"
+import { ShoppingCart, Eye, Star } from "lucide-react"
 import { formatPrice } from "@/lib/currency"
 import WishlistButton from "@/components/wishlist/wishlist-button"
-import { Star } from "lucide-react"
+import { useState } from "react"
+import { useAuth } from "@/lib/auth-context"
+import { useToast } from "@/hooks/use-toast"
 
 interface ProductCardProps {
   product: Product
@@ -15,6 +19,56 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const price = product.price
+  const { user } = useAuth()
+  const { toast } = useToast()
+  const [loading, setLoading] = useState(false)
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!user) {
+      toast({
+        title: "Please sign in",
+        description: "You need to sign in to add items to cart",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setLoading(true)
+    try {
+      const response = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          productId: product.id,
+          quantity: 1,
+          size: product.sizes[0] || "M",
+        }),
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Added to cart! 🛒",
+          description: `${product.name} has been added to your cart`,
+        })
+        window.dispatchEvent(new Event("cart-updated"))
+        window.dispatchEvent(new Event("open-cart"))
+      } else {
+        throw new Error("Failed to add to cart")
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add item to cart",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <Card className="group glass border-white/10 hover-lift overflow-hidden bg-black/50">
@@ -51,13 +105,25 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Quick Add to Cart */}
         <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <Button
-            className="w-full bg-white text-black hover:bg-gray-200 font-semibold focus:ring-2 focus:ring-black focus:outline-none"
-            disabled={product.inventory === 0}
-            aria-disabled={product.inventory === 0}
+            onClick={handleAddToCart}
+            disabled={product.inventory === 0 || loading}
+            className="w-full bg-white text-black hover:bg-gray-200 font-semibold focus:ring-2 focus:ring-black focus:outline-none btn-premium"
+            aria-disabled={product.inventory === 0 || loading}
             aria-label={product.inventory === 0 ? "Out of stock" : "Add to cart"}
           >
-            <ShoppingCart className="mr-2 h-4 w-4" />
-            {product.inventory === 0 ? "OUT OF STOCK" : "ADD TO CART"}
+            {product.inventory === 0 ? (
+              "OUT OF STOCK"
+            ) : loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <span className="hexagon-spinner text-black" />
+                <span>ADDING...</span>
+              </div>
+            ) : (
+              <>
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                <span>ADD TO CART</span>
+              </>
+            )}
           </Button>
         </div>
       </div>

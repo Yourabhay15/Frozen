@@ -73,10 +73,10 @@ export default function Header() {
 
   const navigation = [
     { name: "Home", href: "/" },
-    { name: "Hoodies", href: "/?category=hoodies" },
-    { name: "T-Shirts", href: "/?category=tshirts" },
-    { name: "Pants", href: "/?category=pants" },
-    { name: "Accessories", href: "/?category=accessories" },
+    { name: "Cartoon Caus", href: "/?category=Cartoon Caus MERCH" },
+    { name: "Harry Potter", href: "/?category=Harry Potter MERCH" },
+    { name: "Spooky", href: "/?category=Spooky MERCH" },
+    { name: "Anime", href: "/?category=Anime MERCH" },
     { name: "Wishlist", href: "/wishlist" },
     { name: "Sale", href: "/?sale=true" },
   ]

@@ -6,9 +6,27 @@ import { cookies } from "next/headers"
 export async function GET(request: NextRequest) {
   try {
     console.log("API: Attempting to fetch active products for public view...");
-    const products = await prisma.product.findMany({ where: { status: "active" } });
-    console.log("API: Successfully fetched active products, count:", products.length);
-    return NextResponse.json(products);
+    const products = await prisma.product.findMany({
+      where: { status: "active" },
+      include: {
+        category: true,
+        discount: {
+          select: {
+            percentage: true,
+          },
+        },
+      },
+    });
+    const formattedProducts = products.map(p => ({
+      ...p,
+      category: p.category?.name,
+      discount: p.discount?.percentage,
+      material: p.material ?? null,
+      care: p.care ?? null,
+      origin: p.origin ?? null,
+    }));
+    console.log("API: Successfully fetched active products, count:", formattedProducts.length);
+    return NextResponse.json(formattedProducts);
   } catch (error: any) {
     console.error("API: Error fetching products:", error);
     if (error instanceof Error) {

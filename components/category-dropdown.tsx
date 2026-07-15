@@ -6,13 +6,11 @@ import { ChevronDown, Filter } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 const categories = [
-  { name: "All Products", value: "all", count: 48 },
-  { name: "Hoodies", value: "hoodies", count: 12 },
-  { name: "T-Shirts", value: "tshirts", count: 15 },
-  { name: "Pants", value: "pants", count: 10 },
-  { name: "Jackets", value: "jackets", count: 6 },
-  { name: "Accessories", value: "accessories", count: 8 },
-  { name: "Sweatshirts", value: "sweatshirts", count: 7 },
+  { name: "All Products", value: "all", count: 12 },
+  { name: "Cartoon Caus MERCH", value: "Cartoon Caus MERCH", count: 5 },
+  { name: "Harry Potter MERCH", value: "Harry Potter MERCH", count: 1 },
+  { name: "Spooky MERCH", value: "Spooky MERCH", count: 3 },
+  { name: "Anime MERCH", value: "Anime MERCH", count: 3 },
 ]
 
 export default function CategoryDropdown() {

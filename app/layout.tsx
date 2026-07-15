@@ -37,6 +37,9 @@ export default function RootLayout({
           <AuthProvider>
             <SnowflakesBackground />
             <div className="relative z-10 flex flex-col min-h-screen">
+              <div className="bg-black text-white text-xs sm:text-sm text-center copperplate-bold py-2 border-b border-white/10 tracking-widest flex items-center justify-center">
+                25% OFF ON FIRST ORDER
+              </div>
               <Header />
               <main className="flex-1">{children}</main>
               <Footer />
