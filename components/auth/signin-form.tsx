@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/lib/auth-context"
-import { Eye, EyeOff, Mail, Lock, AlertCircle } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, AlertCircle, ShieldCheck } from "lucide-react"
 import Link from "next/link"
 
 export default function SignInForm() {
@@ -68,21 +68,21 @@ export default function SignInForm() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <Card className="glass border-white/10">
+    <div className="mx-auto w-full max-w-md">
+      <Card className="border-white/10 bg-black/70 backdrop-blur-xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-white text-2xl gradient-text">Welcome Back</CardTitle>
-          <p className="text-slate-400">Sign in to your FROZEN THREAD account</p>
+          <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white">
+            <ShieldCheck className="h-5 w-5" />
+          </div>
+          <CardTitle className="text-2xl font-semibold text-white">Welcome back</CardTitle>
+          <p className="text-sm text-gray-400">Sign in to continue shopping and manage your orders.</p>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Sign In Form */}
+        <CardContent className="space-y-5">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-white">
-                Email Address *
-              </Label>
+              <Label htmlFor="email" className="text-white">Email address</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <Input
                   id="email"
                   type="email"
@@ -91,14 +91,12 @@ export default function SignInForm() {
                     setEmail(e.target.value)
                     if (errors.email) setErrors({ ...errors, email: undefined })
                   }}
-                  className={`pl-10 glass border-white/20 text-white placeholder:text-slate-400 ${
-                    errors.email ? "border-red-500" : ""
-                  }`}
-                  placeholder="Enter your email"
+                  className={`pl-10 border-white/20 bg-white/5 text-white placeholder:text-gray-500 ${errors.email ? "border-red-500" : ""}`}
+                  placeholder="you@example.com"
                 />
               </div>
               {errors.email && (
-                <div className="flex items-center gap-1 text-red-400 text-sm">
+                <div className="flex items-center gap-1 text-sm text-red-400">
                   <AlertCircle className="h-3 w-3" />
                   {errors.email}
                 </div>
@@ -106,11 +104,14 @@ export default function SignInForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-white">
-                Password *
-              </Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" className="text-white">Password</Label>
+                <Link href="/auth/forgot-password" className="text-sm text-gray-400 transition hover:text-white">
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -119,37 +120,31 @@ export default function SignInForm() {
                     setPassword(e.target.value)
                     if (errors.password) setErrors({ ...errors, password: undefined })
                   }}
-                  className={`pl-10 pr-10 glass border-white/20 text-white placeholder:text-slate-400 ${
-                    errors.password ? "border-red-500" : ""
-                  }`}
+                  className={`pl-10 pr-10 border-white/20 bg-white/5 text-white placeholder:text-gray-500 ${errors.password ? "border-red-500" : ""}`}
                   placeholder="Enter your password"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 text-slate-400 hover:text-white"
+                  className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-gray-400 hover:text-white"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
               {errors.password && (
-                <div className="flex items-center gap-1 text-red-400 text-sm">
+                <div className="flex items-center gap-1 text-sm text-red-400">
                   <AlertCircle className="h-3 w-3" />
                   {errors.password}
                 </div>
               )}
             </div>
 
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
-                <div className="flex items-center space-x-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                   <span>Signing In...</span>
                 </div>
               ) : (
@@ -158,12 +153,11 @@ export default function SignInForm() {
             </Button>
           </form>
 
-          {/* Register Link */}
           <div className="text-center">
-            <p className="text-slate-400 text-sm">
-              Don't have an account?{" "}
-              <Link href="/auth/register" className="text-blue-400 hover:text-blue-300 font-medium">
-                Create Account
+            <p className="text-sm text-gray-400">
+              Don’t have an account?{' '}
+              <Link href="/auth/register" className="font-medium text-white transition hover:text-gray-300">
+                Create one
               </Link>
             </p>
           </div>

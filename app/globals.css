@@ -55,12 +55,25 @@
   * {
     @apply border-border;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-black text-white;
+    @apply min-h-screen bg-black text-white antialiased;
+    background-image: radial-gradient(circle at top left, rgba(255,255,255,0.08), transparent 30%), radial-gradient(circle at bottom right, rgba(255,255,255,0.05), transparent 24%);
+  }
+
+  ::selection {
+    @apply bg-white text-black;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-white ring-offset-2 ring-offset-black;
   }
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -70,26 +83,19 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-800 rounded-full;
+  @apply rounded-full bg-gray-800;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-gray-700;
 }
 
-/* Smooth animations */
-* {
-  transition: all 0.2s ease-in-out;
-}
-
-/* Glass effect for black theme */
 .glass {
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Gradient text */
 .gradient-text {
   background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
   -webkit-background-clip: text;
@@ -97,7 +103,6 @@
   background-clip: text;
 }
 
-/* Hover animations */
 .hover-lift {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -107,7 +112,6 @@
   box-shadow: 0 20px 40px rgba(255, 255, 255, 0.1);
 }
 
-/* Loading animation */
 @keyframes pulse-glow {
   0%,
   100% {
@@ -124,7 +128,6 @@
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
-/* Black theme specific styles */
 .bg-gradient-main {
   background: #000000;
 }
@@ -137,7 +140,6 @@
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Zoom cursor styles */
 .cursor-zoom-in {
   cursor: zoom-in;
 }
@@ -146,7 +148,6 @@
   cursor: zoom-out;
 }
 
-/* Custom zoom scales for better control */
 .scale-150 {
   transform: scale(1.5);
 }
@@ -163,17 +164,14 @@
   transform: scale(3);
 }
 
-/* Smooth zoom transitions */
 .zoom-transition {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Fullscreen modal styles */
 .fullscreen-modal {
   backdrop-filter: blur(8px);
 }
 
-/* Hexagon Loader */
 .hexagon-loader {
   display: flex;
   gap: 4px;
@@ -182,7 +180,7 @@
 .hexagon-loader__hexagon {
   width: 20px;
   height: 11.55px;
-  background-color: #6366f1; /* Indigo-500 */
+  background-color: #6366f1;
   position: relative;
   animation: bounce 0.8s infinite alternate;
 }

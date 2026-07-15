@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/lib/auth-context"
-import { Eye, EyeOff, Mail, Lock, User, Phone, AlertCircle } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, User, Phone, AlertCircle, Sparkles } from "lucide-react"
 import Link from "next/link"
 
 export default function RegisterForm() {
@@ -99,13 +99,16 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <Card className="glass border-white/10">
+    <div className="mx-auto w-full max-w-md">
+      <Card className="border-white/10 bg-black/70 backdrop-blur-xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-white text-2xl gradient-text">Create Account</CardTitle>
-          <p className="text-slate-400">Join FROZEN THREAD today</p>
+          <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <CardTitle className="text-2xl font-semibold text-white">Create your account</CardTitle>
+          <p className="text-sm text-gray-400">Join FROZEN THREAD to access exclusive drops and faster checkout.</p>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-5">
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Name Field */}
             <div className="space-y-2">
@@ -255,11 +258,7 @@ export default function RegisterForm() {
               )}
             </div>
 
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <div className="flex items-center space-x-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -273,23 +272,22 @@ export default function RegisterForm() {
 
           {/* Sign In Link */}
           <div className="text-center">
-            <p className="text-slate-400 text-sm">
-              Already have an account?{" "}
-              <Link href="/auth/signin" className="text-blue-400 hover:text-blue-300 font-medium">
-                Sign In
+            <p className="text-sm text-gray-400">
+              Already have an account?{' '}
+              <Link href="/auth/signin" className="font-medium text-white transition hover:text-gray-300">
+                Sign in
               </Link>
             </p>
           </div>
 
-          {/* Terms */}
           <div className="text-center">
-            <p className="text-xs text-slate-500">
-              By creating an account, you agree to our{" "}
-              <Link href="/terms" className="text-blue-400 hover:text-blue-300">
+            <p className="text-xs text-gray-500">
+              By creating an account, you agree to our{' '}
+              <Link href="/terms" className="text-gray-300 transition hover:text-white">
                 Terms of Service
-              </Link>{" "}
-              and{" "}
-              <Link href="/privacy" className="text-blue-400 hover:text-blue-300">
+              </Link>{' '}
+              and{' '}
+              <Link href="/privacy" className="text-gray-300 transition hover:text-white">
                 Privacy Policy
               </Link>
             </p>
