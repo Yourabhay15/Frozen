@@ -156,6 +156,7 @@ async function main() {
       where: { email: "admin@frozenthread.com" },
       update: {},
       create: {
+        id: "mock-admin-id",
         email: "admin@frozenthread.com",
         password: "admin123",
         name: "Admin User",

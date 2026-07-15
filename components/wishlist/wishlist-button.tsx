@@ -15,7 +15,7 @@ interface WishlistButtonProps {
 
 // Helper function to validate MongoDB ObjectId
 const isValidObjectId = (id: string): boolean => {
-  return typeof id === 'string' && id.length === 24 && /^[0-9a-fA-F]{24}$/.test(id);
+  return typeof id === 'string' && id.trim().length > 0;
 };
 
 export default function WishlistButton({ productId, className, showText = false }: WishlistButtonProps) {

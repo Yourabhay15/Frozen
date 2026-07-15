@@ -3,7 +3,7 @@ import { removeFromWishlist, isInWishlist } from "@/lib/database"
 import { createClient } from "@/utils/supabase/server"
 import { cookies } from "next/headers"
 
-export async function DELETE(request: NextRequest, { params }: { params: { productId: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ productId: string }> }) {
   const { productId } = await params;
   try {
     const cookieStore = await cookies()
@@ -26,7 +26,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { produ
   }
 }
 
-export async function GET(request: NextRequest, { params }: { params: { productId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ productId: string }> }) {
   const { productId } = await params;
   try {
     const cookieStore = await cookies()

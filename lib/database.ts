@@ -232,7 +232,63 @@ export async function getOrderById(id: string) {
 }
 
 export async function createOrder(data: any) {
-  return prisma.order.create({ data });
+  const { userId, items, shippingAddress, total, status } = data;
+
+  let city = "Default City";
+  let state = "Default State";
+  let pincode = "000000";
+  let addressLine1 = shippingAddress || "Default Address";
+
+  if (shippingAddress && shippingAddress.includes(",")) {
+    const parts = shippingAddress.split(",");
+    addressLine1 = parts[0].trim();
+    if (parts.length > 1) {
+      city = parts[1].trim();
+    }
+    if (parts.length > 2) {
+      const statePincode = parts[2].trim();
+      if (statePincode.includes("-")) {
+        const sp = statePincode.split("-");
+        state = sp[0].trim();
+        pincode = sp[1].trim();
+      } else {
+        state = statePincode;
+      }
+    }
+  }
+
+  // 1. Create an Address record for the user
+  const addressRecord = await prisma.address.create({
+    data: {
+      userId,
+      name: "Delivery Address",
+      phone: data.phone || "0000000000",
+      addressLine1,
+      city,
+      state,
+      pincode,
+      country: "India",
+    }
+  });
+
+  // 2. Create the Order with nested orderItems
+  return prisma.order.create({
+    data: {
+      userId,
+      total: parseFloat(total),
+      status: status || "pending",
+      shippingAddressId: addressRecord.id,
+      orderItems: {
+        create: items.map((item: any) => ({
+          productId: item.productId,
+          quantity: parseInt(item.quantity),
+        }))
+      }
+    },
+    include: {
+      orderItems: true,
+    }
+  });
 }
 
 export async function updateOrderStatus(orderId: string, status: string) {

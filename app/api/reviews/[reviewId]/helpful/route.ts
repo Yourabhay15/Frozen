@@ -1,12 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { updateReviewHelpful } from "@/lib/database"
 
-export async function POST(request: NextRequest, { params }: { params: { reviewId: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ reviewId: string }> }) {
   try {
+    const { reviewId } = await params;
     const body = await request.json()
     const { increment = true } = body
 
-    const review = await updateReviewHelpful(params.reviewId)
+    const review = await updateReviewHelpful(reviewId)
 
     if (!review) {
       return NextResponse.json({ error: "Review not found" }, { status: 404 })
