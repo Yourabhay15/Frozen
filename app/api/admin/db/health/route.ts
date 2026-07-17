@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/utils/supabase/server"
 import { cookies } from "next/headers"
-import { checkMongoHealth } from "@/lib/database"
+import { checkDatabaseHealth } from "@/lib/database"
 import { prisma } from "@/lib/prisma"
 
 export async function GET() {
@@ -23,7 +23,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const healthy = await checkMongoHealth()
+    const healthy = await checkDatabaseHealth()
     return NextResponse.json({ healthy })
   } catch (error) {
     return NextResponse.json({ healthy: false, error: "Failed to check health" })

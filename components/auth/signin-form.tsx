@@ -55,9 +55,10 @@ export default function SignInForm() {
         description: result.message || "You have successfully signed in.",
       })
 
-      // Redirect based on user role
-      const isAdminUser = email === "admin@frozenthread.com"
-      router.push(isAdminUser ? "/admin" : "/")
+      // Redirect to specified page or storefront main page
+      const searchParams = new URLSearchParams(window.location.search)
+      const redirectTo = searchParams.get("redirect") || "/"
+      router.push(redirectTo)
     } else {
       toast({
         title: "Sign In Failed",

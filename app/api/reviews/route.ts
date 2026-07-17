@@ -1,5 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getReviewsByProductId, addReview } from "@/lib/database"
+import { createClient } from "@/utils/supabase/server"
+import { cookies } from "next/headers"
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,11 +21,23 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const body = await request.json()
     const { productId, userId, userName, rating, title, comment, verified = false } = body
 
     if (!productId || !userId || !userName || !rating || !title || !comment) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    }
+
+    if (userId !== user.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     if (rating < 1 || rating > 5) {

@@ -34,18 +34,23 @@ export default function WishlistPage() {
       const data = await response.json()
 
       if (data.success) {
-        // Fetch product details for each wishlist item
         const itemsWithProducts = await Promise.all(
           data.data.map(async (item: WishlistItem) => {
-            const productResponse = await fetch(`/api/products/${item.productId}`)
-            const productData = await productResponse.json()
-            return {
-              ...item,
-              product: productData,
+            try {
+              const productResponse = await fetch(`/api/products/${item.productId}`)
+              if (!productResponse.ok) return null
+              const productData = await productResponse.json()
+              if (!productData || productData.error || !productData.id) return null
+              return {
+                ...item,
+                product: productData,
+              }
+            } catch {
+              return null
             }
           }),
         )
-        setWishlistItems(itemsWithProducts)
+        setWishlistItems(itemsWithProducts.filter((item): item is (WishlistItem & { product: Product }) => item !== null))
       }
     } catch (error) {
       console.error("Failed to fetch wishlist:", error)

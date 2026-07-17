@@ -48,21 +48,23 @@ export async function POST(request: Request) {
     }
     
     const body = await request.json()
-    const { name, role } = body
+    const { name } = body
+    
+    const isAdminUser = user.email === "admin@frozenthread.com"
+    const defaultRole = isAdminUser ? "admin" : "customer"
+    const defaultIsAdmin = isAdminUser
     
     const profile = await prisma.user.upsert({
       where: { id: user.id },
       update: {
         name: name !== undefined ? name : undefined,
-        role: role !== undefined ? role : undefined,
-        isAdmin: role === "admin" ? true : undefined,
       },
       create: {
         id: user.id,
         email: user.email!,
         name: name || user.user_metadata?.name || null,
-        role: role || (user.email === "admin@frozenthread.com" ? "admin" : "customer"),
-        isAdmin: role === "admin" || user.email === "admin@frozenthread.com",
+        role: defaultRole,
+        isAdmin: defaultIsAdmin,
       },
     })
     

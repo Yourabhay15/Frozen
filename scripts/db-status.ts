@@ -1,9 +1,9 @@
-import { checkMongoHealth, getDatabaseStats } from "../lib/database"
+import { checkDatabaseHealth, getDatabaseStats } from "../lib/database"
 
 async function main() {
-  console.log("🧊 FROZEN THREAD - MongoDB Status\n==============================\n")
-  const healthy = await checkMongoHealth()
-  console.log(`MongoDB Connection: ${healthy ? "✅ Healthy" : "❌ Unhealthy"}`)
+  console.log("🧊 FROZEN THREAD - PostgreSQL Status\n==============================\n")
+  const healthy = await checkDatabaseHealth()
+  console.log(`PostgreSQL Connection: ${healthy ? "✅ Healthy" : "❌ Unhealthy"}`)
 
   if (healthy) {
     const stats = await getDatabaseStats()

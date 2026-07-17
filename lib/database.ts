@@ -367,19 +367,19 @@ export async function isInWishlist(userId: string, productId: string) {
   return !!item
 }
 
-// MongoDB health check using Prisma
-export async function checkMongoHealth() {
+// PostgreSQL health check using Prisma
+export async function checkDatabaseHealth() {
   try {
-    // Try a simple query on the User collection
+    // Try a simple query on the User table
     await prisma.user.findFirst({ select: { id: true } })
     return true
   } catch (error) {
-    console.error("[MongoDB Health Check] Error:", error)
+    console.error("[PostgreSQL Health Check] Error:", error)
     return false
   }
 }
 
-// MongoDB analytics/stats function
+// PostgreSQL analytics/stats function
 export async function getDatabaseStats() {
   try {
     const [users, products, orders, categories, wishlist, reviews] = await Promise.all([

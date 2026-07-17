@@ -34,9 +34,28 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const path = request.nextUrl.pathname
 
-  const isProtectedPage = path.startsWith("/checkout") || path.startsWith("/orders") || path.startsWith("/admin")
+  const isAdminRoute = path.startsWith("/admin") || path.startsWith("/api/admin")
+  const isProtectedPage = path.startsWith("/checkout") || path.startsWith("/orders")
   const isProtectedApi = path.startsWith("/api/") && 
     (path.startsWith("/api/cart") || path.startsWith("/api/wishlist") || path.startsWith("/api/orders"))
+
+  if (isAdminRoute) {
+    if (!user) {
+      if (path.startsWith("/api/")) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      }
+      const url = new URL("/auth/signin", request.url)
+      url.searchParams.set("redirect", path)
+      return NextResponse.redirect(url)
+    }
+    const isAdmin = user.email === "admin@frozenthread.com" || user.user_metadata?.isAdmin === true
+    if (!isAdmin) {
+      if (path.startsWith("/api/")) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      }
+      return NextResponse.redirect(new URL("/", request.url))
+    }
+  }
 
   if (!user && (isProtectedPage || isProtectedApi)) {
     if (path.startsWith("/api/")) {

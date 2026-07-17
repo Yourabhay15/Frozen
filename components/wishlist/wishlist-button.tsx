@@ -13,8 +13,8 @@ interface WishlistButtonProps {
   showText?: boolean
 }
 
-// Helper function to validate MongoDB ObjectId
-const isValidObjectId = (id: string): boolean => {
+// Helper function to validate user ID
+const isValidUserId = (id: string): boolean => {
   return typeof id === 'string' && id.trim().length > 0;
 };
 
@@ -25,13 +25,13 @@ export default function WishlistButton({ productId, className, showText = false 
   const { toast } = useToast()
 
   useEffect(() => {
-    if (user && isValidObjectId(user.id)) { // Add validation here
+    if (user && isValidUserId(user.id)) { // Add validation here
       checkWishlistStatus()
     }
   }, [user, productId])
 
   const checkWishlistStatus = async () => {
-    if (!user || !isValidObjectId(user.id)) { // Add validation here
+    if (!user || !isValidUserId(user.id)) { // Add validation here
       return
     }
 
@@ -47,7 +47,7 @@ export default function WishlistButton({ productId, className, showText = false 
   }
 
   const toggleWishlist = async () => {
-    if (!user || !isValidObjectId(user.id)) { // Add validation here
+    if (!user || !isValidUserId(user.id)) { // Add validation here
       toast({
         title: "Please sign in",
         description: "You need to sign in to add items to wishlist",
@@ -108,7 +108,7 @@ export default function WishlistButton({ productId, className, showText = false 
       variant={isInWishlist ? "default" : "outline"}
       size={showText ? "default" : "icon"}
       onClick={toggleWishlist}
-      disabled={loading || !user || !isValidObjectId(user.id)} // Disable if user or user.id is invalid
+      disabled={loading} // Only disable if loading so guest users can click it to see sign-in prompt
       className={cn(
         isInWishlist
           ? "bg-red-600 hover:bg-red-700 text-white"

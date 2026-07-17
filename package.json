@@ -7,7 +7,7 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-    "db:test": "ts-node scripts/db-status.ts",
+    "db:test": "tsx scripts/db-status.ts",
     "test": "jest"
   },
   "dependencies": {
